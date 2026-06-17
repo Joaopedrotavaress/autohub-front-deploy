@@ -25,6 +25,7 @@ const TIMESERIES_WINDOW_MS = TIMESERIES_MINUTES * 60 * 1000
 const TIMESERIES_BUCKET_MS = TIMESERIES_BUCKET_SECONDS * 1000
 const MAX_CLOCK_DRIFT_MS = 10 * 1000
 const GRAFANA_DASHBOARD_URL = import.meta.env.VITE_GRAFANA_DASHBOARD_URL || ''
+const GRAFANA_ENABLE_IFRAME = import.meta.env.VITE_GRAFANA_ENABLE_IFRAME === 'true'
 
 function formatNumber(value) {
   return new Intl.NumberFormat('pt-BR').format(Number(value || 0))
@@ -116,6 +117,24 @@ function getLatestBucketTime(points) {
 
 function formatChartTime(date) {
   return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+}
+
+function buildGrafanaPanelUrl(panelId) {
+  if (!GRAFANA_DASHBOARD_URL) return ''
+
+  try {
+    const url = new URL(GRAFANA_DASHBOARD_URL)
+    url.pathname = url.pathname.replace('/d/', '/d-solo/')
+    url.searchParams.set('orgId', url.searchParams.get('orgId') || '1')
+    url.searchParams.set('from', url.searchParams.get('from') || 'now-1h')
+    url.searchParams.set('to', url.searchParams.get('to') || 'now')
+    url.searchParams.set('refresh', url.searchParams.get('refresh') || '10s')
+    url.searchParams.set('panelId', String(panelId))
+
+    return url.toString()
+  } catch {
+    return ''
+  }
 }
 
 export function AdminKafkaDashboardPage() {
@@ -289,6 +308,9 @@ export function AdminKafkaDashboardPage() {
       .filter((_, index) => index % 10 === 0 || index === chartData.length - 1)
       .map((point) => point.label)
   }, [chartData])
+  const grafanaThroughputPanelUrl = buildGrafanaPanelUrl(1)
+  const grafanaLagPanelUrl = buildGrafanaPanelUrl(3)
+  const shouldShowGrafanaPanels = GRAFANA_DASHBOARD_URL && GRAFANA_ENABLE_IFRAME && grafanaThroughputPanelUrl && grafanaLagPanelUrl
 
   return (
     <AuthenticatedLayout>
@@ -447,12 +469,12 @@ export function AdminKafkaDashboardPage() {
         </div>
 
         <SurfacePanel>
-          <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-zinc-100 pb-5">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.22em] text-zinc-400">Grafana Cloud</p>
-              <h2 className="mt-1 text-2xl font-black text-zinc-950">Monitoramento externo</h2>
+              <h2 className="mt-1 text-2xl font-black text-zinc-950">Metricas tecnicas Kafka</h2>
               <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-500">
-                Metricas e logs tecnicos da VM sao enviados pelo Grafana Alloy para o Grafana Cloud. Este atalho abre o painel externo sem interferir no dashboard interno do AutoHub.
+                Metricas e logs tecnicos da VM sao enviados pelo Grafana Alloy para o Grafana Cloud. Os paineis externos sao opcionais e nao interferem no dashboard interno do AutoHub.
               </p>
             </div>
 
@@ -474,6 +496,29 @@ export function AdminKafkaDashboardPage() {
               title="Dashboard externo nao configurado"
               description="Configure VITE_GRAFANA_DASHBOARD_URL para abrir o dashboard externo do Grafana Cloud."
             />
+          ) : null}
+
+          {GRAFANA_DASHBOARD_URL && !GRAFANA_ENABLE_IFRAME ? (
+            <Notice
+              className="mt-5"
+              title="Graficos externos desativados"
+              description="Configure VITE_GRAFANA_ENABLE_IFRAME=true para exibir os paineis do Grafana Cloud dentro desta tela."
+            />
+          ) : null}
+
+          {shouldShowGrafanaPanels ? (
+            <div className="mt-6 grid gap-6 xl:grid-cols-2">
+              <iframe
+                className="h-[26rem] w-full rounded-lg border border-zinc-200 bg-white"
+                title="Grafana Kafka throughput"
+                src={grafanaThroughputPanelUrl}
+              />
+              <iframe
+                className="h-[26rem] w-full rounded-lg border border-zinc-200 bg-white"
+                title="Grafana Kafka consumer lag"
+                src={grafanaLagPanelUrl}
+              />
+            </div>
           ) : null}
         </SurfacePanel>
 
