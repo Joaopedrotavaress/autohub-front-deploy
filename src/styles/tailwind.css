@@ -1,0 +1,36 @@
+/* Tailwind CSS Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos de Tailwind Customizados */
+@layer base {
+  @font-face {
+    font-family: 'Plus Jakarta Sans';
+    font-weight: 400;
+    src: url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800');
+  }
+
+  @font-face {
+    font-family: 'Inter';
+    font-weight: 400;
+    src: url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600');
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  ::selection {
+    background-color: #ffdad6;
+    color: #fff9f8;
+  }
+}

@@ -1,0 +1,23 @@
+/* Global Styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+
+.text-glass-blur {
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.primary-gradient-cta {
+  background: linear-gradient(135deg, #b90014 0%, #e31b23 100%);
+}
