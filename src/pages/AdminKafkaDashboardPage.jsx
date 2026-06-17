@@ -10,7 +10,7 @@ import {
   YAxis,
 } from 'recharts'
 import { AuthenticatedLayout } from '../components/layout'
-import { Button, MetricCard, Notice, PageStack, SectionHeader, StatusBadge, SurfacePanel } from '../components/ui'
+import { Button, getButtonClasses, MetricCard, Notice, PageStack, SectionHeader, StatusBadge, SurfacePanel } from '../components/ui'
 import {
   getKafkaDashboardFailures,
   getKafkaDashboardSummary,
@@ -24,6 +24,7 @@ const TIMESERIES_BUCKET_SECONDS = 1
 const TIMESERIES_WINDOW_MS = TIMESERIES_MINUTES * 60 * 1000
 const TIMESERIES_BUCKET_MS = TIMESERIES_BUCKET_SECONDS * 1000
 const MAX_CLOCK_DRIFT_MS = 10 * 1000
+const GRAFANA_DASHBOARD_URL = import.meta.env.VITE_GRAFANA_DASHBOARD_URL || ''
 
 function formatNumber(value) {
   return new Intl.NumberFormat('pt-BR').format(Number(value || 0))
@@ -444,6 +445,37 @@ export function AdminKafkaDashboardPage() {
             </div>
           </SurfacePanel>
         </div>
+
+        <SurfacePanel>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-zinc-400">Grafana Cloud</p>
+              <h2 className="mt-1 text-2xl font-black text-zinc-950">Monitoramento externo</h2>
+              <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-500">
+                Metricas e logs tecnicos da VM sao enviados pelo Grafana Alloy para o Grafana Cloud. Este atalho abre o painel externo sem interferir no dashboard interno do AutoHub.
+              </p>
+            </div>
+
+            {GRAFANA_DASHBOARD_URL ? (
+              <a
+                className={getButtonClasses({ variant: 'secondary' })}
+                href={GRAFANA_DASHBOARD_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Abrir Grafana Cloud
+              </a>
+            ) : null}
+          </div>
+
+          {!GRAFANA_DASHBOARD_URL ? (
+            <Notice
+              className="mt-5"
+              title="Dashboard externo nao configurado"
+              description="Configure VITE_GRAFANA_DASHBOARD_URL para abrir o dashboard externo do Grafana Cloud."
+            />
+          ) : null}
+        </SurfacePanel>
 
       </PageStack>
     </AuthenticatedLayout>
