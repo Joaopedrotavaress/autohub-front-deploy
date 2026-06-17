@@ -506,20 +506,7 @@ export function AdminKafkaDashboardPage() {
             />
           ) : null}
 
-          {shouldShowGrafanaPanels ? (
-            <div className="mt-6 grid gap-6 xl:grid-cols-2">
-              <iframe
-                className="h-[26rem] w-full rounded-lg border border-zinc-200 bg-white"
-                title="Grafana Kafka throughput"
-                src={grafanaThroughputPanelUrl}
-              />
-              <iframe
-                className="h-[26rem] w-full rounded-lg border border-zinc-200 bg-white"
-                title="Grafana Kafka consumer lag"
-                src={grafanaLagPanelUrl}
-              />
-            </div>
-          ) : null}
+          
         </SurfacePanel>
 
       </PageStack>
